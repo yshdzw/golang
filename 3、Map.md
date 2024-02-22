@@ -179,11 +179,11 @@ li => wang
 wang => wang
 ```
 
-map中的3个key均指向数组中最后一个结构体。
+map中的3个key均指向数组中最后一个结构体。<b>但是在go1.22及其以后就不存在该问题。</b>
 
 **分析**
 
-foreach中，stu是结构体的一个拷贝副本，所以`m[stu.Name]=&stu`实际上一致指向同一个指针， 最终该指针的值为遍历的最后一个`struct的值拷贝`。 
+foreach中，stu是结构体的一个拷贝副本，所以`m[stu.Name]=&stu`实际上一致指向同一个指针， 最终该指针的值为遍历的最后一个`struct的值拷贝`。
 
 
 ![](images/109-foreach.jpeg)

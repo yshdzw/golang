@@ -445,6 +445,82 @@ go task =  130093 , goroutine count =  4
 
 ![](images/151-goroutines5.jpeg)
 
+
+#### 方法五：基于方法四，使用带缓冲 channel，不使用 WG
+
+> code6.go
+
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+	"runtime"
+)
+
+func busi(ch chan int) {
+	for t := range ch {
+		fmt.Println("go task = ", t, ", goroutine count = ", runtime.NumGoroutine())
+	}
+}
+
+func sendTask(task int, ch chan int) {
+	ch <- task
+}
+
+func main() {
+	goCnt := 3 // 启动 goroutine 的数量
+	ch := make(chan int, goCnt)
+
+	for i := 0; i < goCnt; i++ {
+		// 启动 go
+		go busi(ch)
+	}
+
+	taskCnt := math.MaxInt64 // 模拟用户需求业务的数量
+	for t := 0; t < taskCnt; t++ {
+		// 发送任务
+		sendTask(t, ch)
+	}
+}
+
+```
+
+结构
+
+```bash
+//...
+go task =  130069 , goroutine count =  4
+go task =  130070 , goroutine count =  4
+go task =  130071 , goroutine count =  4
+go task =  130072 , goroutine count =  4
+go task =  130073 , goroutine count =  4
+go task =  130074 , goroutine count =  4
+go task =  130075 , goroutine count =  4
+go task =  130076 , goroutine count =  4
+go task =  130077 , goroutine count =  4
+go task =  130078 , goroutine count =  4
+go task =  130079 , goroutine count =  4
+go task =  130080 , goroutine count =  4
+go task =  130081 , goroutine count =  4
+go task =  130082 , goroutine count =  4
+go task =  130083 , goroutine count =  4
+go task =  130084 , goroutine count =  4
+go task =  130085 , goroutine count =  4
+go task =  130086 , goroutine count =  4
+go task =  130087 , goroutine count =  4
+go task =  130088 , goroutine count =  4
+go task =  130089 , goroutine count =  4
+go task =  130090 , goroutine count =  4
+go task =  130091 , goroutine count =  4
+go task =  130092 , goroutine count =  4
+go task =  130093 , goroutine count =  4
+...
+```
+
+速率控制还是采用有缓存 channel，上述实现弊端是当 goCnt 比较大时，可能有大部分 G 空闲。
+
 ---
 
 以上便是目前有关限定goroutine基础设计思路。
